@@ -70,7 +70,7 @@ export const config = {
   },
 
   // ── SQLite ───────────────────────────────────────────────────────────────────
-  dbPath: process.env.DB_PATH ?? path.join(__dirname, '..', 'data', 'apprenticeship.db'),
+  dbPath: process.env.DB_PATH ?? '/home/site/wwwroot/data/apprenticeship.db',
 
   // ── Pagination ───────────────────────────────────────────────────────────────
   defaultPageSize: 100,
