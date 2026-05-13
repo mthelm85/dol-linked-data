@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DOL Apprenticeship — Linked Data</title>
+  <meta name="description" content="Linked Data publication of the U.S. Department of Labor Apprenticeship Participant Characteristics dataset. Proof of concept demonstrating 4-star open government data publishing.">
+
+  <!-- JSON-LD dataset description for search engines and crawlers -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org/",
+    "@type": "Dataset",
+    "name": "DOL Apprenticeship Participant Characteristics — Linked Data",
+    "description": "Linked Data publication of the RAPIDS Apprenticeship Participant Characteristics dataset. Each record is available as a dereferenceable URI returning JSON-LD.",
+    "url": "BASE_URL_PLACEHOLDER/",
+    "publisher": {
+      "@type": "Organization",
+      "name": "U.S. Department of Labor, Employment and Training Administration",
+      "url": "https://www.dol.gov/agencies/eta"
+    },
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "isBasedOn": "https://data.dol.gov/datasets/10264",
+    "temporalCoverage": "2014/2024",
+    "spatialCoverage": "United States"
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:   #1a56db;
+      --green:  #057a55;
+      --amber:  #92400e;
+      --gray:   #6b7280;
+      --border: #e5e7eb;
+      --bg:     #f9fafb;
+      --text:   #111827;
+      --muted:  #6b7280;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      line-height: 1.6;
+      background: #fff;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #1e3a5f;
+      color: #fff;
+      padding: 3rem 1rem 2.5rem;
+      text-align: center;
+    }
+    .dol-flag {
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+    header h1 {
+      font-size: clamp(1.5rem, 4vw, 2.2rem);
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    header p {
+      color: rgba(255,255,255,0.75);
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .badges {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    .badge-blue   { background: rgba(59,130,246,0.25); color: #93c5fd; }
+    .badge-green  { background: rgba(16,185,129,0.25); color: #6ee7b7; }
+    .badge-amber  { background: rgba(245,158,11,0.25); color: #fcd34d; }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 2.5rem 1rem 4rem;
+    }
+
+    section { margin-bottom: 3rem; }
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    p { margin-bottom: 0.75rem; color: #374151; }
+
+    a { color: var(--blue); }
+
+    /* ── 5-star rating ── */
+    .stars-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .stars-table tr { border-bottom: 1px solid var(--border); }
+    .stars-table tr:last-child { border-bottom: none; }
+    .stars-table td { padding: 10px 12px; vertical-align: top; }
+    .stars-table td:first-child { white-space: nowrap; font-size: 1.1rem; width: 100px; }
+    .stars-table .achieved { background: #f0fdf4; }
+    .stars-table .partial  { background: #fffbeb; }
+    .stars-table .missing  { background: #fff; color: var(--muted); }
+    .star-on  { color: #f59e0b; }
+    .star-off { color: #d1d5db; }
+    .status-badge {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      margin-left: 6px;
+    }
+    .status-yes     { background: #d1fae5; color: #065f46; }
+    .status-partial { background: #fef3c7; color: #92400e; }
+    .status-no      { background: #f3f4f6; color: #6b7280; }
+
+    /* ── Stats grid ── */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 1.5rem;
+    }
+    .stat {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .stat-n { font-size: 1.6rem; font-weight: 600; color: #1e3a5f; }
+    .stat-l { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+    /* ── Code blocks ── */
+    .code-block {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      font-size: 0.82rem;
+      line-height: 1.7;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+    }
+    .code-block .comment { color: #94a3b8; }
+    .code-block .key     { color: #7dd3fc; }
+    .code-block .val     { color: #86efac; }
+    .code-block .uri     { color: #fcd34d; }
+    .code-block .cmd     { color: #c4b5fd; }
+
+    /* ── Vocab table ── */
+    .vocab-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    .vocab-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      font-weight: 500;
+    }
+    .vocab-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid #f3f4f6;
+      vertical-align: top;
+    }
+    .vocab-table code {
+      background: #f1f5f9;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.8rem;
+    }
+    .reuse  { color: #057a55; font-size: 0.75rem; }
+    .novel  { color: #92400e; font-size: 0.75rem; }
+
+    /* ── Gap list ── */
+    .gap-list { list-style: none; }
+    .gap-list li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+      align-items: baseline;
+    }
+    .gap-list li:last-child { border-bottom: none; }
+    .gap-dot { font-size: 1.2rem; flex-shrink: 0; }
+    .gap-text strong { display: block; font-size: 0.9rem; margin-bottom: 2px; }
+    .gap-text span   { font-size: 0.82rem; color: var(--muted); }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+    footer a { color: var(--muted); }
+  </style>
+</head>
+<body>
+
+<header>
+  <p class="dol-flag">Proof of concept — not an official government publication</p>
+  <h1>Apprenticeship Participant Characteristics<br>Linked Data</h1>
+  <p>Demonstrating four-star open data publishing using publicly available DOL workforce data.</p>
+  <div class="badges">
+    <span class="badge badge-blue">RDF · JSON-LD</span>
+    <span class="badge badge-green">CC BY 4.0</span>
+    <span class="badge badge-amber">Proof of Concept</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- Dataset stats -->
+  <section>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-n">9,940</div>
+        <div class="stat-l">Apprentice records</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">302</div>
+        <div class="stat-l">Unique occupations</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">53</div>
+        <div class="stat-l">States &amp; territories</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">2014–2024</div>
+        <div class="stat-l">Fiscal years</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n">$17.26</div>
+        <div class="stat-l">Median starting wage</div>
+      </div>
+    </div>
+    <p>
+      Derived from the <a href="https://data.dol.gov/datasets/10264" target="_blank">Apprenticeship Participant Characteristics</a>
+      dataset published on data.dol.gov. Records were filtered to occupation strings with ≥95% SOC code match confidence
+      and starting wages in the valid range ($7.25–$150/hr).
+    </p>
+  </section>
+
+  <!-- 5-star rating -->
+  <section>
+    <h2>Five-star open data rating</h2>
+    <p>Tim Berners-Lee's five-star framework measures how machine-accessible and interoperable open data is.
+       This publication demonstrates what moving from three stars to four looks like in practice.</p>
+
+    <table class="stars-table">
+      <tr class="achieved">
+        <td><span class="star-on">★★★</span><span class="star-off">★★</span></td>
+        <td>
+          <strong>Available, structured, non-proprietary</strong>
+          <span class="status-badge status-yes">✓ Achieved</span><br>
+          <span style="color: #6b7280; font-size: 0.85rem;">Publicly accessible JSON-LD and HTML. No login required. No proprietary format.</span>
+        </td>
+      </tr>
+      <tr class="achieved">
+        <td><span class="star-on">★★★★</span><span class="star-off">★</span></td>
+        <td>
+          <strong>Use open standards with dereferenceable URIs</strong>
+          <span class="status-badge status-yes">✓ Achieved</span><br>
+          <span style="color: #6b7280; font-size: 0.85rem;">Every record has a stable URI. Occupation links to O*NET. Content negotiation returns JSON-LD or HTML.</span>
+        </td>
+      </tr>
+      <tr class="missing">
+        <td><span class="star-on">★★★★★</span></td>
+        <td>
+          <strong>Link your data to other datasets</strong>
+          <span class="status-badge status-no">Not yet</span><br>
+          <span style="color: #6b7280; font-size: 0.85rem;">Requires a SPARQL endpoint and inbound links from external datasets. This is the next step.</span>
+        </td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- How to use -->
+  <section>
+    <h2>Accessing the data</h2>
+
+    <h3>Browse a record</h3>
+    <p>Each apprentice record has a human-readable HTML page and a machine-readable JSON-LD representation at the same URI.</p>
+
+    <div class="code-block">
+<span class="comment"># HTML — open in a browser</span>
+BASE_URL_PLACEHOLDER/id/apprentice/1294199
+
+<span class="comment"># JSON-LD — request with Accept header</span>
+<span class="cmd">curl</span> -H <span class="val">"Accept: application/ld+json"</span> \
+  BASE_URL_PLACEHOLDER/id/apprentice/1294199
+    </div>
+
+    <h3>List all records</h3>
+    <div class="code-block">
+<span class="comment"># Paginated list — HTML</span>
+BASE_URL_PLACEHOLDER/id/apprentice
+
+<span class="comment"># Paginated list — JSON-LD</span>
+<span class="cmd">curl</span> -H <span class="val">"Accept: application/ld+json"</span> \
+  <span class="uri">"BASE_URL_PLACEHOLDER/id/apprentice?page=1&amp;size=50"</span>
+
+<span class="comment"># Filter by SOC code</span>
+<span class="cmd">curl</span> -H <span class="val">"Accept: application/ld+json"</span> \
+  <span class="uri">"BASE_URL_PLACEHOLDER/id/apprentice?soc=47-2111.00"</span>
+    </div>
+
+    <h3>Sample JSON-LD record</h3>
+    <div class="code-block">
+{
+  <span class="key">"@context"</span>: <span class="val">"BASE_URL_PLACEHOLDER/vocab/context.jsonld"</span>,
+  <span class="key">"@id"</span>:      <span class="val">"BASE_URL_PLACEHOLDER/id/apprentice/1294199"</span>,
+  <span class="key">"@type"</span>:    [<span class="val">"schema:Person"</span>, <span class="val">"dol:Apprentice"</span>],
+
+  <span class="comment">// Occupation — a dereferenceable O*NET URI, not a string</span>
+  <span class="key">"schema:occupationalCategory"</span>: {
+    <span class="key">"@id"</span>: <span class="uri">"https://www.onetonline.org/link/summary/47-2073.00"</span>
+  },
+
+  <span class="key">"schema:baseSalary"</span>: {
+    <span class="key">"@type"</span>: <span class="val">"schema:MonetaryAmount"</span>,
+    <span class="key">"schema:currency"</span>: <span class="val">"USD"</span>,
+    <span class="key">"schema:value"</span>: <span class="val">15.81</span>
+  },
+
+  <span class="comment">// Provenance — where this data came from</span>
+  <span class="key">"prov:wasDerivedFrom"</span>: {
+    <span class="key">"@id"</span>: <span class="uri">"https://data.dol.gov/datasets/10264"</span>
+  }
+}
+    </div>
+  </section>
+
+  <!-- Vocabulary -->
+  <section>
+    <h2>Vocabulary</h2>
+    <p>
+      Each field is mapped to a standard vocabulary term. DOL-specific terms that have no
+      equivalent in Schema.org or other standard vocabularies are defined in the
+      <a href="BASE_URL_PLACEHOLDER/vocab/apprenticeship">DOL Apprenticeship Vocabulary</a>.
+    </p>
+
+    <table class="vocab-table">
+      <thead>
+        <tr>
+          <th>RAPIDS field</th>
+          <th>Vocabulary term</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>occupation</td><td><code>schema:occupationalCategory</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>starting_wage</td><td><code>schema:baseSalary</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>naics_cd</td><td><code>schema:naics</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>gender</td><td><code>schema:gender</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>education</td><td><code>schema:educationalLevel</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>county_fips</td><td><code>schema:workLocation</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>state</td><td><code>schema:addressRegion</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>start_date</td><td><code>schema:startDate</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>exit_date</td><td><code>schema:endDate</code></td><td class="reuse">Schema.org</td></tr>
+        <tr><td>exit_wage</td><td><code>dol:exitWage</code></td><td class="novel">DOL vocabulary</td></tr>
+        <tr><td>veteran_status_title</td><td><code>dol:veteranStatus</code></td><td class="novel">DOL vocabulary</td></tr>
+        <tr><td>individuals_with_disabilities</td><td><code>dol:hasDisability</code></td><td class="novel">DOL vocabulary</td></tr>
+        <tr><td>fiscal_year</td><td><code>dol:fiscalYear</code></td><td class="novel">DOL vocabulary</td></tr>
+      </tbody>
+    </table>
+
+    <p style="margin-top: 1rem;">
+      <a href="BASE_URL_PLACEHOLDER/vocab/context.jsonld">JSON-LD context document</a> ·
+      <a href="BASE_URL_PLACEHOLDER/vocab/apprenticeship">Vocabulary definition (Turtle)</a> ·
+      <a href="BASE_URL_PLACEHOLDER/.well-known/void">Dataset description (JSON-LD)</a>
+    </p>
+  </section>
+
+  <!-- Gaps -->
+  <section>
+    <h2>What this demonstrates — and what's still missing</h2>
+
+    <ul class="gap-list">
+      <li>
+        <span class="gap-dot">⚠️</span>
+        <div class="gap-text">
+          <strong>RAPIDS has no SOC codes</strong>
+          <span>1,328 free-text occupation strings had to be fuzzy-matched against the O*NET database. If RAPIDS published SOC codes natively, this pipeline would not exist.</span>
+        </div>
+      </li>
+      <li>
+        <span class="gap-dot">⚠️</span>
+        <div class="gap-text">
+          <strong>33.7% of RAPIDS records have no occupation</strong>
+          <span>Nearly 3 million of 8.75 million records could not be used because the occupation field was "Not Provided". A machine-readable SHACL data contract would catch this at ingest.</span>
+        </div>
+      </li>
+      <li>
+        <span class="gap-dot">⚠️</span>
+        <div class="gap-text">
+          <strong>No SPARQL endpoint</strong>
+          <span>This publication supports content negotiation and individual record dereferencing, but not federated SPARQL queries. That is the five-star step.</span>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <!-- Source -->
+  <section>
+    <h2>Source and provenance</h2>
+    <p>
+      This dataset is derived from the
+      <a href="https://data.dol.gov/datasets/10264" target="_blank">Apprenticeship Participant Characteristics</a>
+      dataset published by the U.S. Department of Labor, Employment and Training Administration on data.dol.gov.
+    </p>
+    <p>
+      Records were filtered to a 10,000-record sample using occupation strings with ≥95% SOC code match confidence
+      against the <a href="https://www.onetcenter.org" target="_blank">O*NET database</a> (version 30.2).
+      Sampling was stratified by occupation to ensure broad coverage.
+    </p>
+    <p>
+      Licensed under <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Creative Commons Attribution 4.0</a>.
+      This is a proof of concept — not an official DOL publication.
+    </p>
+  </section>
+
+</main>
+
+<footer>
+  <p>
+    Built using publicly available data from
+    <a href="https://data.dol.gov/datasets/10264" target="_blank">data.dol.gov</a> ·
+    <a href="BASE_URL_PLACEHOLDER/vocab/apprenticeship">Vocabulary</a> ·
+    <a href="https://github.com/mthel/dol-linked-data" target="_blank">GitHub</a>
+  </p>
+  <p style="margin-top: 0.5rem;">
+    This is a proof of concept and is not an official DOL publication.
+    It is not affiliated with or endorsed by the U.S. Department of Labor.
+  </p>
+</footer>
+
+</body>
+</html>

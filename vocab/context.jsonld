@@ -1,0 +1,216 @@
+{
+  "@context": {
+    "@version": 1.1,
+
+    "comment": "JSON-LD context for DOL Apprenticeship Participant Characteristics (RAPIDS). Maps RAPIDS field names to standard vocabulary terms. Host this file at a stable URI and reference it from every JSON-LD record.",
+
+    "prefixes": {
+      "rdf":     "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+      "rdfs":    "http://www.w3.org/2000/01/rdf-schema#",
+      "xsd":     "http://www.w3.org/2001/XMLSchema#",
+      "owl":     "http://www.w3.org/2002/07/owl#",
+      "skos":    "http://www.w3.org/2004/02/skos/core#",
+      "schema":  "https://schema.org/",
+      "dcterms": "http://purl.org/dc/terms/",
+      "prov":    "http://www.w3.org/ns/prov#",
+      "dol":     "https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship#",
+      "occ":     "https://www.onetonline.org/link/summary/"
+    },
+
+    "id":   "@id",
+    "type": "@type",
+
+    "Apprentice":           "dol:Apprentice",
+    "Person":               "schema:Person",
+    "ApprenticeshipProgram":"dol:ApprenticeshipProgram",
+    "Occupation":           "schema:Occupation",
+
+    "apprentice_id": {
+      "@id": "schema:identifier",
+      "@type": "xsd:string",
+      "comment": "Primary RAPIDS identifier for this apprentice. Used to construct the record URI."
+    },
+
+    "apprentice_number": {
+      "@id": "skos:notation",
+      "@type": "xsd:string",
+      "comment": "State-prefixed alternate identifier. Distinct from apprentice_id."
+    },
+
+    "program_number": {
+      "@id": "schema:identifier",
+      "@type": "xsd:string",
+      "comment": "Applied to the program node, not the apprentice node directly."
+    },
+
+    "start_date": {
+      "@id": "schema:startDate",
+      "@type": "xsd:date",
+      "comment": "Date an apprentice begins the program."
+    },
+
+    "exit_date": {
+      "@id": "schema:endDate",
+      "@type": "xsd:date",
+      "comment": "Date an apprentice exits (completion or cancellation). Absent if still active."
+    },
+
+    "fiscal_year": {
+      "@id": "dol:fiscalYear",
+      "@type": "xsd:gYear",
+      "comment": "Federal fiscal year (Oct 1 - Sep 30) in which the start date falls."
+    },
+
+    "occupation": {
+      "@id": "schema:occupationalCategory",
+      "@type": "@id",
+      "comment": "CRITICAL: value must be an O*NET URI, not a string. E.g. https://www.onetonline.org/link/summary/47-2111.00. This is the primary interoperability join key."
+    },
+
+    "naics_cd": {
+      "@id": "schema:naics",
+      "@type": "xsd:string",
+      "comment": "NAICS code. Ideally expressed as a URI: https://www.census.gov/naics/?code=238210"
+    },
+
+    "industry": {
+      "@id": "schema:industry",
+      "@type": "xsd:string",
+      "comment": "Industry label. Link to NAICS URI for machine-readable version."
+    },
+
+    "starting_wage": {
+      "@id": "schema:baseSalary",
+      "@type": "xsd:decimal",
+      "comment": "Hourly starting wage in USD. Converted from reported frequency to hourly rate."
+    },
+
+    "exit_wage": {
+      "@id": "dol:exitWage",
+      "@type": "xsd:decimal",
+      "comment": "Hourly exit wage in USD. Novel dol: term — no Schema.org equivalent for exit-stage wage."
+    },
+
+    "gender": {
+      "@id": "schema:gender",
+      "@type": "xsd:string",
+      "comment": "Self-reported gender. Values: Male, Female, Participant Did Not Self-Identify."
+    },
+
+    "race": {
+      "@id": "schema:ethnicity",
+      "@type": "xsd:string",
+      "comment": "Self-reported racial indicator. Consider linking to CDC race/ethnicity vocabulary URIs for precision."
+    },
+
+    "ethnicity": {
+      "@id": "schema:ethnicity",
+      "@type": "xsd:string",
+      "comment": "Hispanic or Latino ethnicity indicator. Combined with race field via schema:ethnicity."
+    },
+
+    "veteran_status_title": {
+      "@id": "dol:veteranStatus",
+      "@type": "xsd:string",
+      "comment": "Novel dol: term. No Schema.org equivalent for veteran status on a person. Values from RAPIDS controlled vocabulary."
+    },
+
+    "individuals_with_disabilities": {
+      "@id": "dol:hasDisability",
+      "@type": "xsd:boolean",
+      "comment": "Self-reported disability status under ADA. Novel dol: term — schema:hasDisabilitySupport applies to organizations, not persons."
+    },
+
+    "education": {
+      "@id": "schema:educationalLevel",
+      "@type": "xsd:string",
+      "comment": "Highest education level. For maximum interoperability use ISCED level URIs as values."
+    },
+
+    "county_fips": {
+      "@id": "schema:workLocation",
+      "@type": "@id",
+      "comment": "Program county, expressed as a URI. E.g. https://data.census.gov/cedsci/?fips=53033. Do not use bare FIPS string."
+    },
+
+    "appr_county_fips": {
+      "@id": "schema:homeLocation",
+      "@type": "@id",
+      "comment": "Apprentice home county URI. Distinct from schema:workLocation (program county)."
+    },
+
+    "state": {
+      "@id": "schema:addressRegion",
+      "@type": "xsd:string",
+      "comment": "Program state abbreviation. Ideally expressed as a GeoNames URI for the state."
+    },
+
+    "appr_state": {
+      "@id": "schema:addressRegion",
+      "@type": "xsd:string",
+      "comment": "Apprentice home state. Applied to the apprentice's homeLocation node, not workLocation."
+    },
+
+    "hud_state": {
+      "@id": "dol:hudState",
+      "@type": "xsd:string",
+      "comment": "HUD state designation. Novel dol: term. Special values: USMAP, FBOP."
+    },
+
+    "union_y_n": {
+      "@id": "dol:isUnionProgram",
+      "@type": "xsd:boolean",
+      "comment": "Applied to the program node. Novel dol: term."
+    },
+
+    "program_view": {
+      "@id": "dol:programView",
+      "@type": "xsd:string",
+      "comment": "National vs State program classification. Novel dol: term."
+    },
+
+    "age_cohort": {
+      "@id": "dol:ageCohort",
+      "@type": "xsd:string",
+      "comment": "Categorical age cohort. schema:age is for exact age only. Values: Under 24, 25-54, 55+, Did Not Self-Identify."
+    },
+
+    "apprentice_status_code": {
+      "@id": "dol:apprenticeStatus",
+      "@type": "@id",
+      "comment": "Link to a skos:Concept in the dol:ApprenticeStatusScheme. E.g. https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship#status_RE"
+    },
+
+    "fields_excluded_from_publication": {
+      "comment": "The following RAPIDS fields are internal data management artifacts and are NOT published as linked data.",
+      "excluded": [
+        "table_name",
+        "active_adjust",
+        "completer_adjust",
+        "exit_wage_adjust",
+        "new_adjust",
+        "start_wage_adjust"
+      ]
+    },
+
+    "provenance": {
+      "@id": "prov:wasDerivedFrom",
+      "@type": "@id"
+    },
+
+    "license": {
+      "@id": "schema:license",
+      "@type": "@id"
+    },
+
+    "publisher": {
+      "@id": "schema:publisher",
+      "@type": "@id"
+    },
+
+    "dateModified": {
+      "@id": "schema:dateModified",
+      "@type": "xsd:date"
+    }
+  }
+}

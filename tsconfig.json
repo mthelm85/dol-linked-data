@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "esnext",
+    // "rootDir": "./scripts",
+    // "outDir": "./dist/scripts",
+    "types": ["node"],
+    "sourceMap": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "skipLibCheck": true
+  },
+  "include": ["scripts/**/*"],
+  "exclude": ["node_modules", "api", "dist"]
+}

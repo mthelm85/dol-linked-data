@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  DOL Apprenticeship Vocabulary
+  ==============================
+  Namespace: https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship#
+  Prefix:    dol:
+
+  This document formally defines the novel terms in the DOL apprenticeship
+  vocabulary that have no equivalent in Schema.org, Dublin Core, SKOS,
+  PROV-O, or other standard vocabularies.
+
+  All other fields in the RAPIDS Apprenticeship Participant Characteristics
+  dataset are mapped to existing standard vocabularies — see context.jsonld.
+
+  Publication:
+    Host this file at https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship
+    with Content-Type: text/turtle (or application/rdf+xml)
+    so that the namespace URI is dereferenceable.
+
+  Status: Proof of Concept — not yet a formal DOL standard.
+-->
+
+@prefix rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:    <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+@prefix dcterms:<http://purl.org/dc/terms/> .
+@prefix prov:   <http://www.w3.org/ns/prov#> .
+@prefix dol:    <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship#> .
+@prefix vann:   <http://purl.org/vocab/vann/> .
+
+# =============================================================================
+# Ontology declaration
+# =============================================================================
+
+<https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship>
+    a owl:Ontology ;
+    rdfs:label "DOL Apprenticeship Vocabulary"@en ;
+    rdfs:comment """
+        Vocabulary for the U.S. Department of Labor Registered Apprenticeship
+        data published via data.dol.gov. Defines only the terms that have no
+        equivalent in standard vocabularies such as Schema.org, Dublin Core,
+        SKOS, or PROV-O. All other RAPIDS fields are mapped to those standard
+        vocabularies — see the JSON-LD context document.
+    """@en ;
+    dcterms:publisher <https://www.dol.gov> ;
+    dcterms:creator <https://www.dol.gov/agencies/eta> ;
+    dcterms:license <https://creativecommons.org/licenses/by/4.0/> ;
+    dcterms:modified "2025-01-01"^^xsd:date ;
+    owl:versionInfo "0.1.0-poc" ;
+    vann:preferredNamespacePrefix "dol" ;
+    vann:preferredNamespaceUri "https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship#" .
+
+# =============================================================================
+# Classes
+# =============================================================================
+
+dol:Apprentice
+    a owl:Class ;
+    rdfs:label "Apprentice"@en ;
+    rdfs:comment """
+        A person registered in a U.S. Department of Labor recognized
+        apprenticeship program. An Apprentice is also a schema:Person.
+    """@en ;
+    rdfs:subClassOf schema:Person ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> ;
+    skos:exactMatch <https://www.bls.gov/ooh/construction-and-extraction/apprentice.htm> .
+
+dol:ApprenticeshipProgram
+    a owl:Class ;
+    rdfs:label "Apprenticeship Program"@en ;
+    rdfs:comment """
+        A registered apprenticeship program recognized by the U.S. Department
+        of Labor or a State Apprenticeship Agency. Identified by a program
+        number in the RAPIDS system.
+    """@en ;
+    rdfs:subClassOf schema:EducationalOccupationalProgram ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+dol:ApprenticeStatus
+    a owl:Class ;
+    rdfs:label "Apprentice status"@en ;
+    rdfs:comment """
+        A controlled vocabulary concept representing the status of an
+        apprentice in the RAPIDS system. See dol:ApprenticeStatusScheme
+        for the full concept scheme.
+    """@en ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+# =============================================================================
+# Properties — wages
+# =============================================================================
+
+dol:exitWage
+    a owl:DatatypeProperty ;
+    rdfs:label "exit wage"@en ;
+    rdfs:comment """
+        The hourly wage paid to an apprentice at the time of program exit
+        (completion or cancellation). Expressed as a decimal in US dollars
+        per hour. Calculated from the reported wage frequency:
+        Annual ÷ 2000, Semi-annual ÷ 1000, Quarterly ÷ 500,
+        Monthly ÷ 160, Weekly ÷ 40.
+        Distinct from schema:baseSalary which records the starting wage.
+    """@en ;
+    rdfs:domain dol:Apprentice ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+dol:medianStartingWage
+    a owl:DatatypeProperty ;
+    rdfs:label "median starting wage"@en ;
+    rdfs:comment """
+        The median hourly starting wage across all apprentices in a given
+        occupation (SOC code). A derived aggregate statistic stored on the
+        occupation node, not on individual participant nodes.
+        Expressed as a decimal in US dollars per hour.
+    """@en ;
+    rdfs:domain schema:Occupation ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+# =============================================================================
+# Properties — veteran and disability status
+# =============================================================================
+
+dol:veteranStatus
+    a owl:ObjectProperty ;
+    rdfs:label "veteran status"@en ;
+    rdfs:comment """
+        The veteran status of an apprentice as reported in the RAPIDS system.
+        Value should be a skos:Concept from the dol:VeteranStatusScheme
+        controlled vocabulary, or a plain string from the enumeration:
+        'Veteran', 'Non Veteran', 'Non Veteran, Other Eligible Individual',
+        'Veteran, Eligible', 'Participant Did Not Self-Identify'.
+        No equivalent property exists in Schema.org or other standard
+        general-purpose vocabularies.
+    """@en ;
+    rdfs:domain dol:Apprentice ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+dol:hasDisability
+    a owl:DatatypeProperty ;
+    rdfs:label "has disability"@en ;
+    rdfs:comment """
+        Indicates whether an apprentice self-identified as an individual
+        with a disability as defined under the Americans with Disabilities
+        Act. Boolean value. Null or absent if the participant did not
+        self-identify.
+        Note: schema:hasDisabilitySupport exists in Schema.org but applies
+        to organizations and products, not to persons.
+    """@en ;
+    rdfs:domain dol:Apprentice ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+# =============================================================================
+# Properties — program characteristics
+# =============================================================================
+
+dol:isUnionProgram
+    a owl:DatatypeProperty ;
+    rdfs:label "is union program"@en ;
+    rdfs:comment """
+        Indicates whether the apprenticeship program is a union-affiliated
+        program (true) or a non-union program (false).
+        Applied to dol:ApprenticeshipProgram nodes.
+    """@en ;
+    rdfs:domain dol:ApprenticeshipProgram ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+dol:programView
+    a owl:DatatypeProperty ;
+    rdfs:label "program view"@en ;
+    rdfs:comment """
+        Classifies an apprenticeship program as 'National' or 'State'
+        for reporting purposes. National programs include FBOP, USMAP,
+        and programs designated as National Programs. All others are
+        classified as State programs.
+    """@en ;
+    rdfs:domain dol:ApprenticeshipProgram ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+dol:hudState
+    a owl:DatatypeProperty ;
+    rdfs:label "HUD state"@en ;
+    rdfs:comment """
+        The U.S. Department of Housing and Urban Development (HUD) state
+        designation for the program location, based on the program
+        registration zip code. Special values: 'USMAP' for USMAP programs,
+        'FBOP' for Federal Bureau of Prisons programs.
+        This is a HUD-specific geographic classification with no equivalent
+        in standard geographic vocabularies.
+    """@en ;
+    rdfs:domain dol:ApprenticeshipProgram ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+# =============================================================================
+# Properties — temporal
+# =============================================================================
+
+dol:fiscalYear
+    a owl:DatatypeProperty ;
+    rdfs:label "fiscal year"@en ;
+    rdfs:comment """
+        The U.S. federal fiscal year in which the apprentice's start date
+        falls. The federal fiscal year runs from October 1 through
+        September 30 of the following calendar year.
+        Expressed as a 4-digit year string representing the year in which
+        the fiscal year ends (e.g. '2024' for FY2024: Oct 2023 - Sep 2024).
+        Note: schema:temporalCoverage is designed for dataset-level
+        description, not individual record-level temporal classification.
+    """@en ;
+    rdfs:domain dol:Apprentice ;
+    rdfs:range xsd:gYear ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+# =============================================================================
+# Properties — status
+# =============================================================================
+
+dol:apprenticeStatus
+    a owl:ObjectProperty ;
+    rdfs:label "apprentice status"@en ;
+    rdfs:comment """
+        The current status of the apprentice in the RAPIDS system.
+        Value should be a skos:Concept from the dol:ApprenticeStatusScheme
+        controlled vocabulary.
+        Standard codes: RE (Registered), CO (Completed), CA (Cancelled),
+        RI (Reinstated), SU (Suspended), TR (Transferred).
+    """@en ;
+    rdfs:domain dol:Apprentice ;
+    rdfs:range dol:ApprenticeStatus ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+# =============================================================================
+# Properties — O*NET skills (used on occupation nodes)
+# =============================================================================
+
+dol:participantCount
+    a owl:DatatypeProperty ;
+    rdfs:label "participant count"@en ;
+    rdfs:comment """
+        The number of apprentice participants in a given occupation
+        within the published sample. A derived aggregate statistic
+        stored on schema:Occupation nodes.
+    """@en ;
+    rdfs:domain schema:Occupation ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://NAMESPACE_PLACEHOLDER/vocab/apprenticeship> .
+
+# =============================================================================
+# Controlled vocabulary — apprentice status codes
+# =============================================================================
+
+dol:ApprenticeStatusScheme
+    a skos:ConceptScheme ;
+    rdfs:label "RAPIDS Apprentice Status Codes"@en ;
+    rdfs:comment "Controlled vocabulary for apprentice status codes in the RAPIDS system."@en ;
+    dcterms:publisher <https://www.dol.gov/agencies/eta> .
+
+dol:status_RE
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "RE" ;
+    skos:prefLabel "Registered"@en ;
+    skos:definition "Apprentice is currently registered and active in the program."@en .
+
+dol:status_CO
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "CO" ;
+    skos:prefLabel "Completed"@en ;
+    skos:definition "Apprentice has successfully completed the apprenticeship program."@en .
+
+dol:status_CA
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "CA" ;
+    skos:prefLabel "Cancelled"@en ;
+    skos:definition "Apprentice's registration has been cancelled prior to completion."@en .
+
+dol:status_RI
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "RI" ;
+    skos:prefLabel "Reinstated"@en ;
+    skos:definition "Apprentice has been reinstated after a previous cancellation."@en .
+
+dol:status_SU
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "SU" ;
+    skos:prefLabel "Suspended"@en ;
+    skos:definition "Apprentice's participation is temporarily suspended."@en .
+
+dol:status_TR
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "TR" ;
+    skos:prefLabel "Transferred"@en ;
+    skos:definition "Apprentice has transferred to a different program or sponsor."@en .
+
+dol:status_UP
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "UP" ;
+    skos:prefLabel "Update Pending"@en ;
+    skos:definition "Apprentice registration update is pending — treated as Registered."@en .
+
+dol:status_IC
+    a skos:Concept, dol:ApprenticeStatus ;
+    skos:inScheme dol:ApprenticeStatusScheme ;
+    skos:notation "IC" ;
+    skos:prefLabel "Interim Completion Pending"@en ;
+    skos:definition "Apprentice has reached interim completion status, pending confirmation."@en .
