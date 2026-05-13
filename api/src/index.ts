@@ -484,35 +484,107 @@ async function getCounty(
     req: HttpRequest,
     ctx: InvocationContext,
 ): Promise<HttpResponseInit> {
-    const fips = req.params["fips"];
+    const fips = req.params["fips"] ?? "";
     const format = negotiateFormat(req);
 
     ctx.log(`GET /id/county/${fips}`);
 
+    // ── Look up Wikidata URI for this FIPS code ────────────────────────────────
+    let wikidataUri: string | null = null;
+    let countyLabel: string | null = null;
+
+    try {
+        const sparql = `
+      SELECT ?county ?countyLabel WHERE {
+        ?county wdt:P882 "${fips}" .
+        SERVICE wikibase:label {
+          bd:serviceParam wikibase:language "en" .
+        }
+      }
+      LIMIT 1
+    `;
+        const url = `https://query.wikidata.org/sparql?query=${encodeURIComponent(sparql)}&format=json`;
+        const res = await fetch(url, {
+            headers: {
+                "User-Agent":
+                    "DOL-LinkedData-PoC/1.0 (https://github.com/mthelm85/dol-linked-data)",
+            },
+        });
+        const data = (await res.json()) as {
+            results: {
+                bindings: Array<{
+                    county: { value: string };
+                    countyLabel: { value: string };
+                }>;
+            };
+        };
+        const binding = data.results.bindings[0];
+        if (binding) {
+            wikidataUri = binding.county.value;
+            countyLabel = binding.countyLabel?.value ?? null;
+        }
+    } catch (err) {
+        ctx.warn(`Wikidata lookup failed for FIPS ${fips}: ${err}`);
+    }
+
+    // ── JSON-LD response ───────────────────────────────────────────────────────
     if (format === "jsonld") {
+        const doc: Record<string, unknown> = {
+            "@context": config.uris.context,
+            "@id": config.uris.county(fips),
+            "@type": "schema:Place",
+            "schema:identifier": fips,
+        };
+        if (countyLabel) doc["schema:name"] = countyLabel;
+        if (wikidataUri) doc["owl:sameAs"] = { "@id": wikidataUri };
         return {
             status: 200,
             headers: {
                 "Content-Type": "application/ld+json",
                 ...corsHeaders(),
             },
-            jsonBody: {
-                "@context": config.uris.context,
-                "@id": config.uris.county(fips ?? ""),
-                "@type": "schema:Place",
-                "schema:identifier": fips,
-                "rdfs:label": `County FIPS ${fips}`,
-                "owl:sameAs": `https://data.census.gov/cedsci/?fips=${fips}`,
-            },
+            jsonBody: doc,
         };
     }
 
+    // ── HTML response — redirect to Wikidata if found, otherwise explain gap ──
+    if (wikidataUri) {
+        return {
+            status: 303,
+            headers: { Location: wikidataUri, ...corsHeaders() },
+        };
+    }
+
+    // Fallback if Wikidata has no entry for this FIPS
     return {
-        status: 303,
+        status: 200,
         headers: {
-            Location: `https://data.census.gov/cedsci/?fips=${fips}`,
+            "Content-Type": "text/html; charset=utf-8",
             ...corsHeaders(),
         },
+        body: `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>County FIPS ${fips} — DOL Workforce Linked Data</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; color: #111; }
+    .note { background: #fffbeb; padding: 0.75rem; border-radius: 6px; font-size: 0.875rem; }
+  </style>
+</head>
+<body>
+  <h1>County <code>${fips}</code></h1>
+  <p>This URI identifies a U.S. county by its 5-digit FIPS code.</p>
+  <p class="note">
+    <strong>Note:</strong> No Wikidata entry was found for FIPS code <code>${fips}</code>.
+    No widely adopted dereferenceable URI standard exists for U.S. counties by FIPS code.
+    This URI is a placeholder — in production DOL should align with an authoritative
+    geographic URI standard such as <a href="https://www.geonames.org" target="_blank">GeoNames</a>
+    or a future Census Bureau linked data publication.
+  </p>
+  <p><a href="${config.uris.dataset}">← Dataset home</a></p>
+</body>
+</html>`,
     };
 }
 
