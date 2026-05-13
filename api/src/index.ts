@@ -9,6 +9,7 @@ import Database from "better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
 import { config } from "./config.js";
+import os from 'node:os';
 
 // =============================================================================
 // DOL Workforce Linked Data — Azure Function API
@@ -31,17 +32,17 @@ const DB_PATH = config.dbPath;
 let db: Database.Database;
 
 function getDb(): Database.Database {
-    if (!db) {
-        console.log(`DB_PATH: ${DB_PATH}`);
-        console.log(`File exists: ${fs.existsSync(DB_PATH)}`);
-        if (!fs.existsSync(DB_PATH)) {
-            throw new Error(
-                `Database not found at: ${DB_PATH} (exists: ${fs.existsSync(DB_PATH)})`,
-            );
-        }
-        db = new Database(DB_PATH, { fileMustExist: true });
+  if (!db) {
+    const source = DB_PATH;
+    const tmp    = path.join(os.tmpdir(), 'apprenticeship.db');
+
+    if (!fs.existsSync(tmp)) {
+      fs.copyFileSync(source, tmp);
     }
-    return db;
+
+    db = new Database(tmp, { fileMustExist: true });
+  }
+  return db;
 }
 
 // ── Content negotiation ───────────────────────────────────────────────────────
