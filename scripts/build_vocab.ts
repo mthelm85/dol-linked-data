@@ -93,5 +93,10 @@ const voidContent = JSON.stringify({
 }, null, 2);
 
 fs.writeFileSync(path.join(wellKnownDir, "void"), voidContent, "utf8");
+fs.copyFileSync(
+    path.join(VOCAB_OUT, 'dol_vocabulary.ttl'),
+    path.join(VOCAB_OUT, 'apprenticeship')
+);
+console.log('  ✓ public/vocab/apprenticeship (extensionless copy of TTL)');
 console.log("  ✓ .well-known/void written");
 console.log(`\nDone. Run "cd api && func start" to start the local server.`);

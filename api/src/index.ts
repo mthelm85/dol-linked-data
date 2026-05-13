@@ -9,7 +9,7 @@ import Database from "better-sqlite3";
 import path from "node:path";
 import fs from "node:fs";
 import { config } from "./config.js";
-import os from 'node:os';
+import os from "node:os";
 
 // =============================================================================
 // DOL Workforce Linked Data — Azure Function API
@@ -32,17 +32,17 @@ const DB_PATH = config.dbPath;
 let db: Database.Database;
 
 function getDb(): Database.Database {
-  if (!db) {
-    const source = DB_PATH;
-    const tmp    = path.join(os.tmpdir(), 'apprenticeship.db');
+    if (!db) {
+        const source = DB_PATH;
+        const tmp = path.join(os.tmpdir(), "apprenticeship.db");
 
-    if (!fs.existsSync(tmp)) {
-      fs.copyFileSync(source, tmp);
+        if (!fs.existsSync(tmp)) {
+            fs.copyFileSync(source, tmp);
+        }
+
+        db = new Database(tmp, { fileMustExist: true });
     }
-
-    db = new Database(tmp, { fileMustExist: true });
-  }
-  return db;
+    return db;
 }
 
 // ── Content negotiation ───────────────────────────────────────────────────────
@@ -480,6 +480,42 @@ async function listApprentices(
     }
 }
 
+async function getCounty(
+    req: HttpRequest,
+    ctx: InvocationContext,
+): Promise<HttpResponseInit> {
+    const fips = req.params["fips"];
+    const format = negotiateFormat(req);
+
+    ctx.log(`GET /id/county/${fips}`);
+
+    if (format === "jsonld") {
+        return {
+            status: 200,
+            headers: {
+                "Content-Type": "application/ld+json",
+                ...corsHeaders(),
+            },
+            jsonBody: {
+                "@context": config.uris.context,
+                "@id": config.uris.county(fips ?? ""),
+                "@type": "schema:Place",
+                "schema:identifier": fips,
+                "rdfs:label": `County FIPS ${fips}`,
+                "owl:sameAs": `https://data.census.gov/cedsci/?fips=${fips}`,
+            },
+        };
+    }
+
+    return {
+        status: 303,
+        headers: {
+            Location: `https://data.census.gov/cedsci/?fips=${fips}`,
+            ...corsHeaders(),
+        },
+    };
+}
+
 // ── GET / (void:Dataset description) ─────────────────────────────────────────
 async function getDatasetIndex(
     req: HttpRequest,
@@ -510,11 +546,12 @@ async function getDatasetIndex(
 }
 
 function tryRead(p: string): string {
-  try { 
-    const stat = fs.statSync(p);
-    return `exists, size: ${stat.size} bytes, mode: ${stat.mode.toString(8)}`;
-  }
-  catch (e) { return `ERROR: ${String(e)}`; }
+    try {
+        const stat = fs.statSync(p);
+        return `exists, size: ${stat.size} bytes, mode: ${stat.mode.toString(8)}`;
+    } catch (e) {
+        return `ERROR: ${String(e)}`;
+    }
 }
 
 // =============================================================================
@@ -540,4 +577,11 @@ app.http("getDatasetIndex", {
     route: "",
     authLevel: "anonymous",
     handler: getDatasetIndex,
+});
+
+app.http("getCounty", {
+    methods: ["GET"],
+    route: "id/county/{fips}",
+    authLevel: "anonymous",
+    handler: getCounty,
 });
