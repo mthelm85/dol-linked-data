@@ -5,6 +5,7 @@
     "main": "dist/index.js",
     "scripts": {
         "build": "tsc",
+        "postbuild": "copyfiles -f data/apprenticeship.db dist/data/",
         "watch": "tsc --watch",
         "start": "func start"
     },
@@ -20,6 +21,7 @@
     "devDependencies": {
         "@types/better-sqlite3": "^7.6.13",
         "@types/node": "^25.7.0",
+        "copyfiles": "^2.4.1",
         "typescript": "^6.0.3"
     }
 }
