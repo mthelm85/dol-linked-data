@@ -43,6 +43,9 @@ jobs:
           app_location: "/"
           api_location: "api"
           output_location: "public"
+          app_build_command: "npm run build:vocab"
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
