@@ -1,5 +1,5 @@
 import "dotenv/config";
-import path from "path/win32";
+import path from "node:path";
 
 // =============================================================================
 // Configuration — single source of truth for all URIs and environment settings
@@ -35,6 +35,8 @@ export const config = {
     uris: {
         apprentice: (id: string) =>
             `${baseUrl}/api/id/apprentice/${encodeURIComponent(id)}`,
+        occupation: (socCode: string) =>
+            `https://www.onetonline.org/link/summary/${encodeURIComponent(socCode)}`,
         county: (fips: string) =>
             `${baseUrl}/api/id/county/${encodeURIComponent(fips)}`,
         context: `${baseUrl}/vocab/context.jsonld`,
