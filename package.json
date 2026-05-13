@@ -4,8 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "build:vocab": "tsx scripts/build_vocab.ts",
-        "build": "npm run build:vocab"
+        "build:vocab": "tsx scripts/build_vocab.ts"
     },
     "keywords": [],
     "author": "",
