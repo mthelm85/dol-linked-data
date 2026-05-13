@@ -77,7 +77,7 @@ conn = sqlite3.connect(DB_PATH)
 cur  = conn.cursor()
 
 cur.executescript("""
-PRAGMA journal_mode = WAL;
+PRAGMA journal_mode = DELETE;
 PRAGMA foreign_keys = ON;
 
 -- ── Apprentice records ────────────────────────────────────────────────────────
