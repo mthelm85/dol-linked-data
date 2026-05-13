@@ -1,5 +1,5 @@
-import "dotenv/config";
-dotenv.config({ override: false }); // silently skip if no .env file
+import dotenv from "dotenv";
+dotenv.config({ override: false });
 import fs from "node:fs";
 import path from "node:path";
 
