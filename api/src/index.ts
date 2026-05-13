@@ -39,7 +39,7 @@ function getDb(): Database.Database {
                 `Database not found at: ${DB_PATH} (exists: ${fs.existsSync(DB_PATH)})`,
             );
         }
-        db = new Database(DB_PATH, { readonly: true });
+        db = new Database(DB_PATH, { readonly: true, fileMustExist: true });
     }
     return db;
 }
