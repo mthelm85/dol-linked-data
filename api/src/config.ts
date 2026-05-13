@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import path from 'path/win32';
 
 // =============================================================================
 // Configuration — single source of truth for all URIs and environment settings
@@ -69,8 +70,7 @@ export const config = {
   },
 
   // ── SQLite ───────────────────────────────────────────────────────────────────
-  dbPath: process.env.DB_PATH
-    ?? '../data/apprenticeship.db',
+  dbPath: process.env.DB_PATH ?? path.join(__dirname, '..', 'data', 'apprenticeship.db'),
 
   // ── Pagination ───────────────────────────────────────────────────────────────
   defaultPageSize: 100,

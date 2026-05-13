@@ -23,7 +23,7 @@ import { config } from './config.js';
 // =============================================================================
 
 // ── Database ──────────────────────────────────────────────────────────────────
-const DB_PATH = path.resolve(__dirname, '../../data/apprenticeship.db');
+const DB_PATH = config.dbPath;
 let db: Database.Database;
 
 function getDb(): Database.Database {
