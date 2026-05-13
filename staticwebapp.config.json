@@ -1,8 +1,8 @@
 {
   "routes": [
     {
-      "route": "/id/*",
-      "rewrite": "/api/id/*"
+      "route": "/id/apprentice*",
+      "rewrite": "/api/id/apprentice*"
     },
     {
       "route": "/vocab/*",
