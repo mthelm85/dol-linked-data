@@ -509,6 +509,14 @@ async function getDatasetIndex(
     };
 }
 
+function tryRead(p: string): string {
+  try { 
+    const stat = fs.statSync(p);
+    return `exists, size: ${stat.size} bytes, mode: ${stat.mode.toString(8)}`;
+  }
+  catch (e) { return `ERROR: ${String(e)}`; }
+}
+
 async function getDiagnostics(
   req: HttpRequest,
   ctx: InvocationContext
@@ -521,6 +529,7 @@ async function getDiagnostics(
       wwwrootDist:  tryList('/home/site/wwwroot/dist'),
       wwwrootData:  tryList('/home/site/wwwroot/data'),
       distData:     tryList('/home/site/wwwroot/dist/data'),
+      wwwrootDataDb: tryRead('/home/site/wwwroot/data/apprenticeship.db'),
     }
   };
   return { status: 200, jsonBody: diag };
