@@ -28,6 +28,8 @@ let db: Database.Database;
 
 function getDb(): Database.Database {
   if (!db) {
+    console.log(`DB_PATH: ${DB_PATH}`);
+    console.log(`File exists: ${fs.existsSync(DB_PATH)}`);
     if (!fs.existsSync(DB_PATH)) {
       throw new Error(
         `Database not found at ${DB_PATH}. Run scripts/load_sqlite.py first.`
@@ -436,7 +438,7 @@ async function listApprentices(
     };
   } catch (err) {
     ctx.error('Error:', err);
-    return { status: 500, body: 'Server error' };
+    return { status: 500, body: String(err) };
   }
 }
 
