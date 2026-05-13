@@ -517,36 +517,6 @@ function tryRead(p: string): string {
   catch (e) { return `ERROR: ${String(e)}`; }
 }
 
-async function getDiagnostics(
-  req: HttpRequest,
-  ctx: InvocationContext
-): Promise<HttpResponseInit> {
-  const diag = {
-    __dirname,
-    cwd: process.cwd(),
-    files: {
-      wwwroot:      fs.readdirSync('/home/site/wwwroot').catch?.() ?? tryList('/home/site/wwwroot'),
-      wwwrootDist:  tryList('/home/site/wwwroot/dist'),
-      wwwrootData:  tryList('/home/site/wwwroot/data'),
-      distData:     tryList('/home/site/wwwroot/dist/data'),
-      wwwrootDataDb: tryRead('/home/site/wwwroot/data/apprenticeship.db'),
-    }
-  };
-  return { status: 200, jsonBody: diag };
-}
-
-function tryList(p: string): string[] | string {
-  try { return fs.readdirSync(p); }
-  catch (e) { return `ERROR: ${String(e)}`; }
-}
-
-app.http('getDiagnostics', {
-  methods: ['GET'],
-  route: 'diagnostics',
-  authLevel: 'anonymous',
-  handler: getDiagnostics,
-});
-
 // =============================================================================
 // Route registration
 // =============================================================================

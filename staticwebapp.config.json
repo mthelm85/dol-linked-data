@@ -1,8 +1,8 @@
 {
   "routes": [
     {
-      "route": "/api/*",
-      "allowedRoles": ["anonymous"]
+      "route": "/id/*",
+      "rewrite": "/api/id/*"
     },
     {
       "route": "/vocab/*",
