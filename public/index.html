@@ -13,7 +13,7 @@
     "@type": "Dataset",
     "name": "DOL Apprenticeship Participant Characteristics — Linked Data",
     "description": "Linked Data publication of the RAPIDS Apprenticeship Participant Characteristics dataset. Each record is available as a dereferenceable URI returning JSON-LD.",
-    "url": "http://localhost:7071/",
+    "url": "BASE_URL_PLACEHOLDER/",
     "publisher": {
       "@type": "Organization",
       "name": "U.S. Department of Labor, Employment and Training Administration",
@@ -321,32 +321,32 @@
 
     <div class="code-block">
 <span class="comment"># HTML — open in a browser</span>
-http://localhost:7071/api/id/apprentice/1294199
+BASE_URL_PLACEHOLDER/api/id/apprentice/1294199
 
 <span class="comment"># JSON-LD — request with Accept header</span>
 <span class="cmd">curl</span> -H <span class="val">"Accept: application/ld+json"</span> \
-  http://localhost:7071/api/id/apprentice/1294199
+  BASE_URL_PLACEHOLDER/api/id/apprentice/1294199
     </div>
 
     <h3>List all records</h3>
     <div class="code-block">
 <span class="comment"># Paginated list — HTML</span>
-http://localhost:7071/api/id/apprentice
+BASE_URL_PLACEHOLDER/api/id/apprentice
 
 <span class="comment"># Paginated list — JSON-LD</span>
 <span class="cmd">curl</span> -H <span class="val">"Accept: application/ld+json"</span> \
-  <span class="uri">"http://localhost:7071/api/id/apprentice?page=1&amp;size=50"</span>
+  <span class="uri">"BASE_URL_PLACEHOLDER/api/id/apprentice?page=1&amp;size=50"</span>
 
 <span class="comment"># Filter by SOC code</span>
 <span class="cmd">curl</span> -H <span class="val">"Accept: application/ld+json"</span> \
-  <span class="uri">"http://localhost:7071/api/id/apprentice?soc=47-2111.00"</span>
+  <span class="uri">"BASE_URL_PLACEHOLDER/api/id/apprentice?soc=47-2111.00"</span>
     </div>
 
     <h3>Sample JSON-LD record</h3>
     <div class="code-block">
 {
-  <span class="key">"@context"</span>: <span class="val">"http://localhost:7071/vocab/context.jsonld"</span>,
-  <span class="key">"@id"</span>:      <span class="val">"http://localhost:7071/api/id/apprentice/1294199"</span>,
+  <span class="key">"@context"</span>: <span class="val">"BASE_URL_PLACEHOLDER/vocab/context.jsonld"</span>,
+  <span class="key">"@id"</span>:      <span class="val">"BASE_URL_PLACEHOLDER/api/id/apprentice/1294199"</span>,
   <span class="key">"@type"</span>:    [<span class="val">"schema:Person"</span>, <span class="val">"dol:Apprentice"</span>],
 
   <span class="comment">// Occupation — a dereferenceable O*NET URI, not a string</span>
@@ -374,7 +374,7 @@ http://localhost:7071/api/id/apprentice
     <p>
       Each field is mapped to a standard vocabulary term. DOL-specific terms that have no
       equivalent in Schema.org or other standard vocabularies are defined in the
-      <a href="http://localhost:7071/vocab/apprenticeship">DOL Apprenticeship Vocabulary</a>.
+      <a href="BASE_URL_PLACEHOLDER/vocab/apprenticeship">DOL Apprenticeship Vocabulary</a>.
     </p>
 
     <table class="vocab-table">
@@ -403,9 +403,9 @@ http://localhost:7071/api/id/apprentice
     </table>
 
     <p style="margin-top: 1rem;">
-      <a href="http://localhost:7071/vocab/context.jsonld">JSON-LD context document</a> ·
-      <a href="http://localhost:7071/vocab/apprenticeship">Vocabulary definition (Turtle)</a> ·
-      <a href="http://localhost:7071/.well-known/void">Dataset description (JSON-LD)</a>
+      <a href="BASE_URL_PLACEHOLDER/vocab/context.jsonld">JSON-LD context document</a> ·
+      <a href="BASE_URL_PLACEHOLDER/vocab/apprenticeship">Vocabulary definition (Turtle)</a> ·
+      <a href="BASE_URL_PLACEHOLDER/.well-known/void">Dataset description (JSON-LD)</a>
     </p>
   </section>
 
@@ -463,7 +463,7 @@ http://localhost:7071/api/id/apprentice
   <p>
     Built using publicly available data from
     <a href="https://data.dol.gov/datasets/10264" target="_blank">data.dol.gov</a> ·
-    <a href="http://localhost:7071/vocab/apprenticeship">Vocabulary</a> ·
+    <a href="BASE_URL_PLACEHOLDER/vocab/apprenticeship">Vocabulary</a> ·
     <a href="https://github.com/mthel/dol-linked-data" target="_blank">GitHub</a>
   </p>
   <p style="margin-top: 0.5rem;">
